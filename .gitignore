@@ -3,5 +3,5 @@
 vagrantfile
 _pycache_/
 .vagrant/
-client_secrets.json
+
 fb_client_secrets.json
