@@ -17,7 +17,6 @@ patch_request_class
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Make, Photo, Model, User
-from PIL import Image
 import random, string
 import os
 from oauth2client.client import flow_from_clientsecrets
