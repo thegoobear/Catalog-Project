@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+
+{% block head %}
+<head>
+
+<meta charset="utf-8">
+
+<title>Catalog Project</title>
+
+<link rel="stylesheet" type=text/css href="{{ url_for('static', filename='css/catalog.css' ) }}">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,700" rel="stylesheet">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="A Car Catalog">
+<meta name="keywords" content="cars, test, Udacity">
+
+</head>
+{% endblock %}
+
+{% block body %}
+<body>
+
+<div id="wrapper">
+
+  <header>
+
+    <div class="headercontainer">
+      <div class="logobox">
+        <a href="{{url_for ('homepage')}}">Catalog Project</a>
+      </div>
+      <div class="navigation">
+        <ul>
+          {% if not user %}
+          <a href="{{url_for ('loginpage')}}"><li title="LOGIN">LOGIN</li></a>
+          {%endif%}
+          {% if user %}
+          <a href="{{url_for ('gdisconnect')}}"><li title="LOG OUT">LOG OUT</li></a>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+
+  </header>
+
+  {% block main %}
+  {% endblock %}
+
+  <footer>
+    <div class= 'footer-top'>
+      <div class="logobox2">
+        <a href="{{url_for ('homepage')}}">Catalog Project</a>
+      </div>
+      <div class= 'footercontact'>
+        1100 ABC Court<br>
+        Suite 555<br>
+        Raleigh, NC 55555
+      </div>
+      <div class= 'footercontact'>
+        Phone: 919-555-5555<br>
+        Email: info@testsite.test<br>
+      </div>
+    </div>
+
+    <div class = 'footer-bottom'>
+      <span class='copyright'>Copyright 2017 Tripp Green</span>
+    </div>
+  </footer>
+
+</div>
+
+</body>
+{% endblock %}

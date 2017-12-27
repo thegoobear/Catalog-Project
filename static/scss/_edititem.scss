@@ -1,0 +1,83 @@
+.creditheader {
+  margin-top: 30px;
+  overflow: hidden;
+  text-align: center;
+  font-family: 'Open Sans Condensed', sans-serif;
+  &:before,
+  &:after {
+  background-color: black;
+  content: "";
+  display: inline-block;
+  height: 1px;
+  position: relative;
+  vertical-align: middle;
+  width: 25%;
+  }
+  &:before {
+  right: 0.5em;
+  margin-left: -50%;
+  }
+  &:after {
+  left: 0.5em;
+  margin-right: -50%;
+  }
+}
+
+.edititemformwrapper {
+  width: 60%;
+  display:flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-left: auto;
+  margin-right: auto;
+  font-family: 'Open Sans Condensed', sans-serif;
+  margin-top: 50px;
+  margin-bottom: 40px;
+  background: #ededed;;
+  padding:20px;
+
+    form {
+      width: 80%;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+
+    textarea {
+    width: 100% !important;
+    resize: none;
+    }
+
+    input {
+      width: 80%;
+
+      &[name=submit] {
+        width: 100px;
+        margin-top: 35px;
+        margin-bottom: 20px;
+        margin-left: auto;
+        margin-right: auto;
+        background-color: black;
+        border: none;
+        color: white;
+        padding: 16px 32px;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+    }
+
+    textarea {
+      width: 500px;
+      height:150px;
+    }
+
+}
+
+.flash {
+  flex-basis: 100%;
+  background-color: #FBB0B0;
+  padding: 10px;
+}

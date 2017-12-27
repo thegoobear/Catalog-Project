@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+
+{% extends 'layout.html' %}
+
+{% block main %}
+  <main>
+
+    <div class='catalogcontainer'>
+      <div class='makebox'>
+        <ul>
+        {% for make in makes %}
+        <a href='{{ url_for('selectedpage', make=make.name) }}'><li>{{make.name}}</li></a>
+        {% endfor %}
+        </ul>
+      </div>
+      <div class='modelbox'>
+        {{selected.name.upper()}}<br>
+        {% if user %}
+        <a href='{{ url_for('newcar') }}'><img src='/static/img/site_assets/addcar.jpg'></a>
+        {% endif %}
+        <ul>
+        {% for model in selected.model %}
+        <a href='{{ url_for('itempage', car_id=model.id) }}'><li>{{model.year}} {{model.name}}</li></a>
+        {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+  </main>
+{% endblock %}

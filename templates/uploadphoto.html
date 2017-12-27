@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+
+{% extends 'layout.html' %}
+
+{% block main %}
+
+<main>
+
+  {%if success%}
+    <h2 class='creditheader'>Upload Photo</h2>
+
+    <h3 class='contactsuccess'>Thank You! Your photo has been updated.</h2>
+
+    {%else%}
+
+    <h2 class='creditheader'>Upload Photo</h2>
+
+    <div class='edititemformwrapper'>
+
+      {% for message in form.photo.errors %}
+      <div class="flash">{{ message }}</div>
+      {% endfor %}
+
+      {% for message in form.description.errors %}
+      <div class="flash">{{ message }}</div>
+      {% endfor %}
+
+      <form name='uploadphoto' method='POST' enctype='multipart/form-data' action="{{ url_for('uploadphoto', car_id=car_id) }}">
+
+          {{ form.hidden_tag() }}
+          {% for field in form %}
+          {% if field.id != 'csrf_token' and field.id != 'submit' %}
+          {{ field.label }}
+          {% endif %}
+          {{ field }}
+          {% endfor %}
+
+        </form>
+      </div>
+      {%endif%}
+</main>
+
+{% endblock %}

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+
+{% extends 'layout.html' %}
+
+{% block main %}
+
+<main>
+
+  {%if success%}
+    <h2 class='creditheader'>EDIT CAR INFO</h2>
+
+    <h3 class='contactsuccess'>Thank You! Your car has been updated.</h2>
+
+    {%else%}
+
+    <h2 class='creditheader'>EDIT CAR INFO</h2>
+
+    <div class='edititemformwrapper'>
+
+      {% for message in form.name.errors %}
+      <div class="flash">{{ message }}</div>
+      {% endfor %}
+
+      {% for message in form.year.errors %}
+        <div class="flash">{{ message }}</div>
+      {% endfor %}
+
+      {% for message in form.color.errors %}
+        <div class="flash">{{ message }}</div>
+      {% endfor %}
+
+      {% for message in form.mileage.errors %}
+      <div class="flash">{{ message }}</div>
+      {% endfor %}
+
+      {% for message in form.trim.errors %}
+      <div class="flash">{{ message }}</div>
+      {% endfor %}
+
+      {% for message in form.history.errors %}
+      <div class="flash">{{ message }}</div>
+      {% endfor %}
+
+      <form name='edititem' method='POST' enctype='multipart/form-data' action="{{url_for('edititem', car_id=model.id)}}">
+
+          {{ form.hidden_tag() }}
+          {% for field in form%}
+          {% if field.id != 'csrf_token' and field.id != 'submit' %}
+          {{ field.label }}
+          {% endif %}
+          {{ field }}
+          {% endfor %}
+
+        </form>
+      </div>
+      {%endif%}
+</main>
+
+{% endblock %}

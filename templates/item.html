@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+
+{% extends 'layout.html' %}
+
+{% block main %}
+<main>
+
+
+
+<div class="itemwrapper">
+  <div class="itempic">
+    <img alt="Car photo" src="{{ url_for('static', filename='img/uploads/' + model.photo[0].path ) }}">
+    {% if user %}
+    <a href="{{ url_for('edititem', car_id=model.id) }}" class='itembutton'>EDIT</a>
+    <a href="{{ url_for('uploadphoto', car_id=model.id) }}" class='itembutton'>PHOTO</a>
+    <a href="{{ url_for('deletecar', car_id=model.id) }}" class='itembutton'>DELETE</a>
+    {% endif %}
+  </div>
+
+  <div class="infowrapper">
+    <h1 class="itemheader">{{ model.make.name.upper() }} {{ model.name.upper() }}</h1>
+    {% if model.accident %}
+    <div class="accidentinfo">
+    HAS ACCIDENT HISTORY
+    </div>
+    {% endif %}
+    {% if not model.accident %}
+    <div class="accidentinfo">
+    CLEAN HISTORY
+    </div>
+    {% endif %}
+    <div class="centerinfo">
+    <div class="info">
+    Year: {{ model.year }}
+    </div>
+    <div class="info">
+    Color: {{ model.color }}
+    </div>
+    <div class="info">
+    Mileage: {{ model.mileage }}
+    </div>
+    <div class="info">
+    Trim: {{ model.trim }}
+    </div>
+    <div class="info">
+    Condition: {{ model.condition }}
+    </div>
+    </div>
+
+    <div class="description">
+    Description: {{ model.description }}
+    </div>
+
+  </div>
+</div>
+
+</main>
+{% endblock %}
