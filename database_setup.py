@@ -17,6 +17,7 @@ from flask import jsonify
 
 Base = declarative_base()
 
+
 class User(Base):
 
     __tablename__ = 'user'
@@ -25,17 +26,18 @@ class User(Base):
     password = Column(String(80))
     email = Column(String(80), nullable=False, index=True)
 
-    def hash_password (self, password):
+    def hash_password(self, password):
         self.password = pw_context.encrypt(password)
 
-    def verify_password (self, password):
+    def verify_password(self, password):
         return pw_context.verify(password, self.password)
 
     @property
     def serialize(self):
         return {
-                'email':self.email
+                'email': self.email
                 }
+
 
 class Make(Base):
 
@@ -43,14 +45,14 @@ class Make(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(250))
-    
+
     @property
     def serialize(self):
         return {
-                'make':self.name,
-                'models':[model.serialize for model in self.model]
+                'make': self.name,
+                'models': [model.serialize for model in self.model]
                 }
-                
+
 
 class Model(Base):
 
@@ -67,30 +69,31 @@ class Model(Base):
     accident = Column(Boolean)
     make_id = Column(Integer, ForeignKey('make.id'))
     make = relationship(Make, backref=backref("model", cascade="all,delete"))
-    description = Column (String(500))
+    description = Column(String(500))
 
     @property
     def serialize(self):
         return {
-                'model':self.name,
-                'year':self.year,
-                'trim':self.trim,
-                'color':self.color,
-                'mileage':self.mileage,
-                'accident': 'Has had accident' \
+                'model': self.name,
+                'year': self.year,
+                'trim': self.trim,
+                'color': self.color,
+                'mileage': self.mileage,
+                'accident': 'Has had accident'
                 if self.accident else 'No accident history',
                 'condition': self.condition
                 }
 
+
 class Photo(Base):
-    
+
     __tablename__ = 'photo'
-    
-    path = Column(String(80), nullable=False)    
+
+    path = Column(String(80), nullable=False)
     id = Column(Integer, primary_key=True)
-    description = Column (String(200))
+    description = Column(String(200))
     model_id = Column(Integer, ForeignKey('model.id'))
-    model = relationship(Model, backref=backref("photo", cascade="all,delete")) 
+    model = relationship(Model, backref=backref("photo", cascade="all,delete"))
 
 engine = create_engine('sqlite:///catalog.db')
 Base.metadata.create_all(engine)
