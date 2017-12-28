@@ -11,9 +11,11 @@
   <div class="itempic">
     <img alt="Car photo" src="{{ url_for('static', filename='img/uploads/' + model.photo[0].path ) }}">
     {% if user %}
+    {% if model in user.model %}
     <a href="{{ url_for('edititem', car_id=model.id) }}" class='itembutton'>EDIT</a>
     <a href="{{ url_for('uploadphoto', car_id=model.id) }}" class='itembutton'>PHOTO</a>
     <a href="{{ url_for('deletecar', car_id=model.id) }}" class='itembutton'>DELETE</a>
+    {% endif %}
     {% endif %}
   </div>
 

@@ -69,6 +69,8 @@ class Model(Base):
     accident = Column(Boolean)
     make_id = Column(Integer, ForeignKey('make.id'))
     make = relationship(Make, backref=backref("model", cascade="all,delete"))
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship(User, backref=backref("model", cascade="all,delete"))
     description = Column(String(500))
 
     @property

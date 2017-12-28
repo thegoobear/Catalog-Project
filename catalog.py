@@ -13,7 +13,7 @@ from flask import Flask, render_template, flash, request, abort,\
     session as login_session, redirect, url_for, jsonify, send_from_directory
 from flask_uploads import UploadSet, IMAGES, configure_uploads,\
     patch_request_class
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, func
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Make, Photo, Model, User
 import random
@@ -26,6 +26,7 @@ import json
 from flask import make_response
 import requests
 from siteforms import EditModel, PhotoForm, NewModel
+from functools import wraps
 
 # Pull in the client secret key for Google Sign In
 CLIENT_ID = json.loads(
@@ -47,10 +48,36 @@ photos = UploadSet('photos', IMAGES)
 configure_uploads(app, (photos))
 patch_request_class(app)
 
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        '''
+        Checks for login session, verifies that account exists
+        '''
+
+        if 'email' not in login_session:
+
+            return redirect(url_for('loginpage'))
+
+        else:
+
+            if not session.query(User).filter_by(
+                    email=login_session['email']).first():
+
+                return redirect(url_for('loginpage'))
+    
+        return f(*args, **kwargs)
+    
+    return decorated_function
 
 @app.route('/')
 @app.route('/index')
 def homepage():
+    '''
+    Show catalog of makes and most recently added models
+    
+    Returns: Template for home page
+    '''
 
     # Create list of 6 most recently added cars
     makes = session.query(Make).all()
@@ -62,29 +89,41 @@ def homepage():
         user = session.query(User).filter_by(
                 email=login_session['email']).first()
 
+        # return template with User
         return render_template("index.html", user=user, makes=makes,
                                latest_model_list=latest_model_list)
     else:
+        # return template without User
         return render_template("index.html", user=None, makes=makes,
                                latest_model_list=latest_model_list)
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def loginpage():
+    '''
+    Show login page
+    
+    Returns: Template for login page
+    '''
 
     if request.method == 'GET':
 
         # Generate state token for CSRF check
         state = ''.join(random.choice(string.ascii_uppercase + string.digits)
                         for x in range(32))
-
+        
+        # Save state token in session
         login_session['state'] = state
 
+        # Render login page
         return render_template("login.html", STATE=state)
 
 
 @app.route('/fbconnect', methods=['POST'])
 def fbconnect():
+    '''
+    Get Facebook acces token, sign user in
+    '''
 
     # Validate state token
     if request.args.get('state') != login_session['state']:
@@ -140,6 +179,9 @@ def fbconnect():
 
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
+    '''
+    Gets google acces token, sign user in
+    '''
 
     # Validate state token
     if request.args.get('state') != login_session['state']:
@@ -234,9 +276,13 @@ def gconnect():
 
 @app.route('/gdisconnect')
 def gdisconnect():
+    '''
+    Logs user out of Oauth
+    '''
 
     provider = login_session.get('provider')
 
+    # Clears current session if no provider is listed
     if provider is None:
 
         login_session.clear()
@@ -249,6 +295,7 @@ def gdisconnect():
 
         return resp
 
+    # Revokes Google access token and clears session
     if provider == 'google':
 
         url = 'https://accounts.google.com/o/oauth2/revoke?token=%s'\
@@ -277,6 +324,7 @@ def gdisconnect():
             response.headers['Content-Type'] = 'application/json'
             return response
 
+    # Clears session for facbook user
     if provider == 'facebook':
 
         login_session.clear()
@@ -292,6 +340,13 @@ def gdisconnect():
 
 @app.route('/<make>')
 def selectedpage(make):
+    '''
+    Show catalog for a specific make
+    
+    ARG: name of selected make
+    
+    Returns: Template for catalog page with make selected
+    '''
 
     # Create list of vehicle makers
     makes = session.query(Make).all()
@@ -311,8 +366,15 @@ def selectedpage(make):
                                makes=makes, selected=selected)
 
 
-@app.route('/talent/profile/<int:car_id>')
+@app.route('/<int:car_id>')
 def itempage(car_id):
+    '''
+    Show info for a model
+    
+    ARG: Id of car to be shown
+    
+    Returns: template for model info
+    '''
 
     model = session.query(Model).filter_by(id=car_id).first()
 
@@ -326,17 +388,32 @@ def itempage(car_id):
     return render_template("item.html", model=model)
 
 
+
 @app.route('/<int:car_id>/delete')
+@login_required
 def deletecar(car_id):
+    '''
+    deletes a model and associated files
+    
+    ARG: Id of car to be deleted
+    '''
 
     car = session.query(Model).filter_by(id=car_id).first()
 
+    if 'email' in login_session:
+
+        if car.user.email != login_session['email']:
+        
+            flash ('Not correct user')
+        
+            return redirect(url_for('itempage', car_id=car.id))
+    
     # Remove old photo from system
     if os.path.isfile(
             'static/img/uploads/' + car.photo[0].path) \
             and car.photo[0].path != 'nophoto.png':
 
-            os.remove('static/img/uploads/' + car.photo[0].path)
+        os.remove('static/img/uploads/' + car.photo[0].path)
 
     # Delete DB entry
     session.delete(car)
@@ -346,21 +423,25 @@ def deletecar(car_id):
 
 
 @app.route('/<int:car_id>/edit', methods=['GET', 'POST'])
+@login_required
 def edititem(car_id):
+    '''
+    Show form for editing a model
+    
+    ARG: Id of car to be edited
+    
+    Returns: template for editing a model
+    '''
 
     model = session.query(Model).filter_by(id=car_id).first()
 
-    # Exit if not a current user session or session is not valid
-    if 'email' not in login_session:
+    if 'email' in login_session:
 
-        return redirect(url_for('itempage', car_id=car_id))
-
-    else:
-
-        if not session.query(User).filter_by(
-                email=login_session['email']).first():
-
-            return redirect(url_for('itempage', car_id=car_id))
+        if model.user.email != login_session['email']:
+        
+            flash ('Not correct user')
+        
+            return redirect(url_for('itempage', car_id=model.id))
 
     user = session.query(User).filter_by(email=login_session['email']).first()
 
@@ -371,7 +452,8 @@ def edititem(car_id):
                      condition=model.condition)
 
     if request.method == 'POST' and form.validate():
-
+        
+        # Add all form data to model
         model.color = form.color.data
         model.mileage = form.mileage.data
         model.year = form.year.data
@@ -389,35 +471,34 @@ def edititem(car_id):
 
 
 @app.route('/newcar', methods=['GET', 'POST'])
+@login_required
 def newcar():
-
-    # Check for current user session
-    if 'email' not in login_session:
-
-        return redirect(url_for('homepage'))
-
-    else:
-
-        if not session.query(User).filter_by(
-                email=login_session['email']).first():
-
-            return redirect(url_for('homepage'))
+    '''
+    Creates a form for a new car. If the make is not already in the DB
+    will create a new make as well.
+    
+    Returns: Template for adding a car
+    '''
 
     user = session.query(User).filter_by(email=login_session['email']).first()
 
     form = NewModel()
+    
+    # Create new model
     model = Model()
 
     if request.method == 'POST' and form.validate():
 
         makename = form.make.data
-
+        
+        # Checks to see if make exists, creates new make if not
         if session.query(Make).filter_by(name=makename).first():
             model.make = session.query(Make).filter_by(name=makename).first()
         else:
             make = Make(name=makename)
             session.add(make)
 
+        # Add all form data to model
         model.color = form.color.data
         model.mileage = form.mileage.data
         model.year = form.year.data
@@ -425,7 +506,21 @@ def newcar():
         model.name = form.name.data
         model.condition = form.condition.data
         model.description = form.description.data
-        photo = Photo(model=model, path='nophoto.png')
+        model.user = user
+        model.trim = form.trim.data
+        model.photo
+        model.make = session.query(Make).filter_by(name=makename).first()
+        
+        if form.photo.data:
+            
+            # Save photo
+            filename = photos.save(form.photo.data, folder='uploads')
+            photo = Photo(path=filename[8::], model=model)
+        
+        else:
+        
+            # Add default photo to model if none provided
+            photo = Photo(model=model, path='nophoto.png')
 
         session.add(photo)
         session.add(model)
@@ -437,21 +532,26 @@ def newcar():
 
 
 @app.route('/upload/<int:car_id>', methods=['GET', 'POST'])
+@login_required
 def uploadphoto(car_id):
-
-    if 'email' not in login_session:
-
-        return redirect(url_for('homepage'))
-
-    else:
-
-        if not session.query(User).filter_by(
-                email=login_session['email']).first():
-
-            return redirect(url_for('homepage'))
+    '''
+    Creates a photo upload form and handles file saving/deletion
+    
+    ARG: Id of the model to change photos
+    
+    Returns: Template for photo upload
+    '''
 
     form = PhotoForm()
     model = session.query(Model).filter_by(id=car_id).first()
+
+    if 'email' in login_session:
+
+        if model.user.email != login_session['email']:
+        
+            flash ('Not correct user')
+        
+            return redirect(url_for('itempage', car_id=model.id))
 
     if request.method == 'POST' and form.photo.data:
 
@@ -477,11 +577,14 @@ def uploadphoto(car_id):
 
     if request.method == 'GET':
 
-        return render_template('uploadphoto.html', car_id=car_id, form=form)
+        return render_template('uploadphoto.html', car_id=car_id, form=form, user=model.user)
 
 
 @app.route('/catalog.json')
 def catalogjson():
+    '''
+    Returns a JSON object containing all the makes and models
+    '''
 
     makes = session.query(Make).all()
 
@@ -493,6 +596,26 @@ def catalogjson():
         allcars['Makes'].append(make.serialize)
 
     return jsonify(allcars)
+
+
+@app.route('/<model>.json')
+def itemjson(model):
+    '''
+    Returns a JSON object containing a specific model
+    '''
+    
+    # Case-insensitive query to database for the model
+    model = session.query(Model).filter(func.lower(Model.name)==func.lower(model)).all()
+
+    allcars = {}
+    allcars['Cars'] = []
+
+    for car in model:
+
+        allcars['Cars'].append(car.serialize)
+
+    return jsonify(allcars)
+
 
 if __name__ == '__main__':
     app.debug = True

@@ -105,5 +105,8 @@ class NewModel(FlaskForm):
     description = TextAreaField(
             'Description', [validators.DataRequired(
                     'Please enter a description')])
+    
+    photo = FileField('Photo',
+                      [FileAllowed(photos, 'Photos can only be image files')])
 
     submit = SubmitField('Save')

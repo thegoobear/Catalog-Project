@@ -41,6 +41,10 @@
       <div class="flash">{{ message }}</div>
       {% endfor %}
 
+      {% for message in form.description.errors %}
+      <div class="flash">{{ message }}</div>
+      {% endfor %}
+
       <form name='edititem' method='POST' enctype='multipart/form-data' action="{{url_for('edititem', car_id=model.id)}}">
 
           {{ form.hidden_tag() }}
