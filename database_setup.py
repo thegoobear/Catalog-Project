@@ -101,5 +101,7 @@ class Photo(Base):
 dbpassword = json.loads(open('client_secrets.json', 'r').
                         read())['database']['password']
 
+print(dbpassword)
+
 engine = create_engine('postgresql+psycopg2://ubuntu:' + dbpassword + '@localhost/catalog.db')
 Base.metadata.create_all(engine)
