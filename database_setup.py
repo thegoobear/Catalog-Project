@@ -98,7 +98,7 @@ class Photo(Base):
     model_id = Column(Integer, ForeignKey('model.id'))
     model = relationship(Model, backref=backref("photo", cascade="all,delete"))
     
-dbpassword = json.loads(open('fb_client_secrets.json', 'r').
+dbpassword = json.loads(open('client_secrets.json', 'r').
                         read())['database']['password']
 
 engine = create_engine('postgresql+psycopg2://ubuntu:' + dbpassword + '@localhost/catalog.db')
