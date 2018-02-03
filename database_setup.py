@@ -97,5 +97,5 @@ class Photo(Base):
     model_id = Column(Integer, ForeignKey('model.id'))
     model = relationship(Model, backref=backref("photo", cascade="all,delete"))
 
-engine = create_engine('sqlite:///catalog.db')
+engine = create_engine('postgresql://localhost/catalog.db')
 Base.metadata.create_all(engine)
