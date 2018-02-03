@@ -14,6 +14,7 @@ import datetime
 from sqlalchemy.types import Boolean, DateTime
 from passlib.apps import custom_app_context as pw_context
 from flask import jsonify
+import json
 
 Base = declarative_base()
 
@@ -96,6 +97,9 @@ class Photo(Base):
     description = Column(String(200))
     model_id = Column(Integer, ForeignKey('model.id'))
     model = relationship(Model, backref=backref("photo", cascade="all,delete"))
+    
+dbpassword = json.loads(open('fb_client_secrets.json', 'r').
+                        read())['database']['password']
 
-engine = create_engine('postgresql+psycopg2://ubuntu@localhost/catalog.db')
+engine = create_engine('postgresql+psycopg2://ubuntu:' + dbpassword + '@localhost/catalog.db')
 Base.metadata.create_all(engine)
