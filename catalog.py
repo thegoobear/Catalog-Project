@@ -33,10 +33,11 @@ path = '/var/www/html'
 if path not in sys.path:
    sys.path.append(path)
    
-THIS_FOLDER = os.path.dirname(os.path.abspath('client_secrets.json'))
+THIS_FOLDER = os.path.abspath(__file__)
 
 # Pull in the client secret key for Google Sign In
 secretpath = os.path.join(THIS_FOLDER, 'client_secrets.json')
+print(THIS_FOLDER)
 CLIENT_ID = json.loads(
     open(secretpath, 'r').read())['web']['client_id']
 
