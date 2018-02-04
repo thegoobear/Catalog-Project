@@ -33,7 +33,7 @@ path = '/var/www/html'
 if path not in sys.path:
    sys.path.append(path)
    
-THIS_FOLDER = os.path.abspath('') + 'html'
+THIS_FOLDER = os.path.abspath('') + '/html'
 
 # Pull in the client secret key for Google Sign In
 secretpath = os.path.join(THIS_FOLDER, 'client_secrets.json')
@@ -420,10 +420,10 @@ def deletecar(car_id):
     
     # Remove old photo from system
     if os.path.isfile(
-            'static/img/uploads/' + car.photo[0].path) \
+            THIS_FOLDER + 'static/img/uploads/' + car.photo[0].path) \
             and car.photo[0].path != 'nophoto.png':
 
-        os.remove('static/img/uploads/' + car.photo[0].path)
+        os.remove(THIS_FOLDER + 'static/img/uploads/' + car.photo[0].path)
 
     # Delete DB entry
     session.delete(car)
