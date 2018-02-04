@@ -31,11 +31,14 @@ import sys
 
 path = '/var/www/html'
 if path not in sys.path:
-   sys.path.insert(0, path)
+   sys.path.append(path)
+   
+THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 
 # Pull in the client secret key for Google Sign In
+secretpath = os.path.join(THIS_FOLDER, 'client_secrets.json')
 CLIENT_ID = json.loads(
-    open('client_secrets.json', 'r').read())['web']['client_id']
+    open(secretpath, 'r').read())['web']['client_id']
 
 # Connect to SQL database
 engine = create_engine('postgresql+psycopg2://ubuntu@localhost/catalog')
@@ -140,10 +143,11 @@ def fbconnect():
     code = request.data
 
     # Open stored keys
-    app_id = json.loads(open('fb_client_secrets.json', 'r').
+    fbsecretpath = os.path.join(THIS_FOLDER, 'fb_client_secrets.json')
+    app_id = json.loads(open(fbsecretpath, 'r').
                         read())['web']['app_id']
 
-    app_secret = json.loads(open('fb_client_secrets.json', 'r').
+    app_secret = json.loads(open(fbsecretpath, 'r').
                             read())['web']['app_secret']
 
     # Get access token
@@ -198,7 +202,7 @@ def gconnect():
 
     try:
         # Upgrade the authorization code into a credentials object
-        oauth_flow = flow_from_clientsecrets('client_secrets.json', scope='')
+        oauth_flow = flow_from_clientsecrets(os.path.join(THIS_FOLDER, 'client_secrets.json'), scope='')
         oauth_flow.redirect_uri = 'postmessage'
         credentials = oauth_flow.step2_exchange(code)
     except FlowExchangeError:
