@@ -97,11 +97,6 @@ class Photo(Base):
     description = Column(String(200))
     model_id = Column(Integer, ForeignKey('model.id'))
     model = relationship(Model, backref=backref("photo", cascade="all,delete"))
-    
-dbpassword = json.loads(open('client_secrets.json', 'r').
-                        read())['database']['password']
-
-print(dbpassword)
 
 engine = create_engine('postgresql+psycopg2://ubuntu@localhost/catalog')
 Base.metadata.create_all(engine)
