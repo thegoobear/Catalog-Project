@@ -18,7 +18,7 @@ from database_setup import Base
 
 photos = UploadSet('photos', IMAGES)
 
-engine = create_engine('sqlite:///catalog.db')
+engine = create_engine('postgresql+psycopg2://ubuntu@localhost/catalog')
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()

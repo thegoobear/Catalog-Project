@@ -12,7 +12,7 @@ from database_setup import Base, Make, Photo, Model, User
 
 if __name__ == '__main__':
 
-    engine = create_engine('sqlite:///catalog.db')
+    engine = create_engine('postgresql+psycopg2://ubuntu@localhost/catalog')
     Base.metadata.bind = engine
     DBSession = sessionmaker(bind=engine)
     session = DBSession()

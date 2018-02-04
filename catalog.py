@@ -33,7 +33,7 @@ CLIENT_ID = json.loads(
     open('client_secrets.json', 'r').read())['web']['client_id']
 
 # Connect to SQL database
-engine = create_engine('sqlite:///catalog.db')
+engine = create_engine('postgresql+psycopg2://ubuntu@localhost/catalog')
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
