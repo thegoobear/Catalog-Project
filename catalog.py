@@ -29,7 +29,7 @@ from siteforms import EditModel, PhotoForm, NewModel
 from functools import wraps
 import sys
 
-path = os.getcwd()
+path = '/var/www/html'
 if path not in sys.path:
    sys.path.insert(0, path)
 
